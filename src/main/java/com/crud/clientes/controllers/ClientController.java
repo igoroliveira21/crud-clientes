@@ -2,6 +2,7 @@ package com.crud.clientes.controllers;
 
 import com.crud.clientes.entities.Client;
 import com.crud.clientes.services.ClientService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +33,7 @@ public class ClientController {
     }
 
     @PostMapping
-    public ResponseEntity<Client> insert(@RequestBody Client client) {
+    public ResponseEntity<Client> insert(@Valid @RequestBody Client client) {
         Client newClient = clientService.insert(client);
 
         URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
@@ -41,7 +42,7 @@ public class ClientController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<Client> update(@PathVariable Long id, @RequestBody Client client) {
+    public ResponseEntity<Client> update(@PathVariable Long id, @Valid @RequestBody Client client) {
         Client clientUpdated = clientService.update(id, client);
         return ResponseEntity.ok(clientUpdated);
     }

@@ -3,6 +3,7 @@ package com.crud.clientes.entities;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -23,9 +24,10 @@ public class Client {
     @NotBlank(message = "Campo cpf é obrigatório;")
     private String cpf;
 
+    @Positive
     private Double income; //renda
 
-    @PastOrPresent(message = "Data Inválida")
+    @PastOrPresent(message = "Data de nascimento não pode ser data futura")
     private LocalDate birthDate;
     private Integer children;
 

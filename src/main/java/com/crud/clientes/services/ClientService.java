@@ -2,7 +2,6 @@ package com.crud.clientes.services;
 
 import com.crud.clientes.entities.Client;
 import com.crud.clientes.repositorys.ClientRepository;
-import com.crud.clientes.services.exceptions.DatabaseException;
 import com.crud.clientes.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PostMapping;
 
 
 @Service
@@ -23,8 +21,8 @@ public class ClientService {
 
     @Transactional(readOnly = true)
     public Client findById(Long id) {
-        Client client = clientRepository.findById(id).get();
-        return client;
+            Client client = clientRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado"));
+            return client;
     }
 
     @Transactional(readOnly = true)
@@ -50,16 +48,20 @@ public class ClientService {
     public Client update(Long id, Client obj) {
 
         try {
-            Client entity = clientRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("Recurso não encontrado id: " + id));
+            // Pega a referência do client com o ID
+            Client entity = clientRepository.getReferenceById(id);
 
+            // Atualiza os campos com base no objeto recebido
             entity.setName(obj.getName());
+            entity.setCpf(obj.getCpf());
             entity.setIncome(obj.getIncome());
+            entity.setBirthDate(obj.getBirthDate());
             entity.setChildren(obj.getChildren());
+
 
             return clientRepository.save(entity);
         } catch (EntityNotFoundException e) {
-            throw new ResourceNotFoundException("Recurso não encontrado");
+            throw new ResourceNotFoundException("Recurso não encontrado!");
         }
 
     }
@@ -67,15 +69,15 @@ public class ClientService {
 
     @Transactional(propagation = Propagation.SUPPORTS)
     public void delete(Long id) {
-        if(!clientRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Recurso não encontrado id:" + id);
+        if (!clientRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Recurso não encontrado");
         }
-
-        try{
+        try {
             clientRepository.deleteById(id);
         }
-        catch (DataIntegrityViolationException e) {
-            throw new DatabaseException("Falha de integridade referencial");
+        catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }
+
